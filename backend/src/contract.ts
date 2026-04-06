@@ -1,19 +1,24 @@
-import type express from "express";
+import type { Hono } from "hono";
 
 /**
- * Interface for app
+ * Interface for the logging service
+ */
+export interface ILoggingService {
+    info(message: string): void;
+    warn(message: string): void;
+    error(message: string): void;
+}
+
+/**
+ * Interface for the Hono app wrapper
  */
 export interface IApp {
-    /**
-     * Returns the express app instance
-     */
-    getExpressApp(): express.Express;
+    getApp(): Hono;
 }
 
 /**
  * Interface for a server process that can listen on a port
  */
-
 export interface IServer {
     start(port: number): void;
 }

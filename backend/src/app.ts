@@ -1,42 +1,37 @@
-import express, { type RequestHandler } from "express";
-import cors from "cors";
-import 'dotenv/config'
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import type { IApp, ILoggingService } from "./contract.js";
+import healthRoutes from "./routes/health.js";
 
-import type { Request, Response } from 'express'
-import { type IApp } from "./contract.js";
-import type { ILoggingService } from "./services/LoggingService.js";
+export class HonoApp implements IApp {
+    private readonly app: Hono;
 
-type AsyncRequestHandler = RequestHandler
-
-function asyncHandler(fn: AsyncRequestHandler) {
-  return function (req: Request, res: Response, next: any) {
-    return Promise.resolve(fn(req, res, next)).catch(next)
-  }
-}
-
-export class ExpressApp implements IApp {
-    private readonly app: express.Express;
-
-    constructor(
-        private readonly logger: ILoggingService
-    ) {
-        this.app = express();
+    constructor(private readonly logger: ILoggingService) {
+        this.app = new Hono();
         this.registerMiddleware();
+        this.registerRoutes();
     }
 
-    registerMiddleware() {
-        this.app.use(cors({
-            origin: process.env.FRONTEND_URL,
-            methods: ['GET', 'POST'],
-            allowedHeaders: ['Content-Type', 'Authorization']
-        }))
+    private registerMiddleware(): void {
+        this.app.use(
+            "*",
+            cors({
+                origin: process.env.FRONTEND_URL ?? "",
+                allowMethods: ["GET", "POST", "PUT", "DELETE"],
+                allowHeaders: ["Content-Type", "Authorization"],
+            })
+        );
     }
 
-    getExpressApp(): express.Express {
+    private registerRoutes(): void {
+        this.app.route("/health", healthRoutes);
+    }
+
+    getApp(): Hono {
         return this.app;
     }
 }
 
-export const CreateApp = (
-    logger: ILoggingService
-) => new ExpressApp(logger)
+export function CreateApp(logger: ILoggingService): HonoApp {
+    return new HonoApp(logger);
+}

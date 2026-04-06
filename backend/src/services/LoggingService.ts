@@ -1,9 +1,6 @@
+import type { ILoggingService } from "../contract.js";
 
-export interface ILoggingService {
-    info(message: string): void;
-    warn(message: string): void;
-    error(message: string): void;
-}
+export type { ILoggingService };
 
 export class ConsoleLoggingService implements ILoggingService {
     private stamp(level: string, message: string): string {
