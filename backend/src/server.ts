@@ -1,13 +1,13 @@
 import "dotenv/config";
 import { serve } from "@hono/node-server";
 import { CreateApp } from "./app.js";
-import type { IServer } from "./contract.js";
+import type { IApp, IServer } from "./contract.js";
 import { CreateLoggingService } from "./services/LoggingService.js";
 
 const logger = CreateLoggingService();
 
 export class HTTPServer implements IServer {
-    constructor(private readonly app: import("./contract.js").IApp) {}
+    constructor(private readonly app: IApp) {}
 
     start(port: number): void {
         serve(
